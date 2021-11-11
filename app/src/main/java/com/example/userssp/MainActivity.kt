@@ -11,6 +11,7 @@ import com.example.userssp.adapter.UserAdapter
 import com.example.userssp.databinding.ActivityMainBinding
 import com.example.userssp.interfaces.OnClickListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 
 class MainActivity : AppCompatActivity(), OnClickListener {
 
@@ -31,18 +32,31 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         val preferences = getPreferences(Context.MODE_PRIVATE)
         val isFirstTime = preferences.getBoolean(getString(R.string.sp_first_time), true)
         if (isFirstTime) {
+            var dialogView = layoutInflater.inflate(R.layout.dialog_layout, null)
             MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_title)
+                .setView(dialogView)
+                .setCancelable(false)
                 .setPositiveButton(R.string.dialog_confirm) { _, _ ->
-                    preferences
-                        .edit()
-                        .putBoolean(getString(R.string.sp_first_time), false)
-                        .commit()
+                    val username = dialogView.findViewById<TextInputEditText>(R.id.etUsername)
+                        .text.toString()
+                    with(preferences.edit()) {
+                        putBoolean(getString(R.string.sp_first_time), false)
+                        putString(getString(R.string.sp_username), username)
+                            .apply() // este se ejecuta en seundo plano
+                    }
                 }
                 .setNegativeButton("Cerrar", null)
                 .show()
 
+        } else {
+            val usernane = preferences.getString(getString(R.string.sp_username), "Si data en Sp")
+            Toast.makeText(this, "Dato guardado $usernane", Toast.LENGTH_SHORT).show()
         }
+
+    }
+
+    private fun handleOnPressPositiveButton() {
 
     }
 
